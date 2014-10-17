@@ -18,6 +18,7 @@ fork of [pooler](//github.com/pooler)'s cpuminer.
 Algorithms
 ==========
  * ✓ __wildkeccak__ (Boolberry [BBR])
+ * ✓ __wildkeccak__ (DarkNetCoin[DVC])
 
 Dependencies
 ============
