@@ -110,15 +110,23 @@ void CHECK_OPENCL_ERROR(cl_int err, uint32_t id)
 	}
 }
 
+extern const char* pkernel_path;
+
 /* convert the kernel file into a string */
 char* convertToString(const char *filename)
 {
 	FILE *fp;
 	long lSize;
 	char *buffer;
+	char filen[512];
 
-	fp = fopen ( filename , "rb" );
-	if( !fp )
+	fp = fopen(filename, "rb");
+	if (!fp) {
+		applog(LOG_DEBUG, "%s", filename);
+		sprintf(filen, "%s/%s", pkernel_path, filename);
+		fp = fopen(filen, "rb");
+	}
+	if (!fp)
 		perror(filename),exit(1);
 
 	fseek( fp , 0L , SEEK_END);

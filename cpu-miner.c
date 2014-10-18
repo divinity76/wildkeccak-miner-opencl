@@ -176,6 +176,7 @@ static time_t prev_save = 0;
 static const char * pscratchpad_url = NULL;
 static const char * pscratchpad_local_cache = NULL;
 
+const char * pkernel_path = NULL;
 
 pthread_mutex_t applog_lock;
 static pthread_mutex_t stats_lock;
@@ -206,6 +207,7 @@ static char const usage[] =
     wildkeccak   WildKeccak CPU\n\
     wildkeccak_ocl   WildKeccak OpenCL\n\
     wildkeccak_ocl_multistep   WildKeccak OpenCL multistep\n\
+    -K  --kernelpath=PATH OpenCL kernel files folder (.cl files)\n\
     -d  --device=N  start OpenCL device to use (default: 0) \n\
     -i  --intensity=N  OpenCL work intensity (default: 18) \n\
     -k  --scratchpad=URL  URL of inital scratchpad file\n\
@@ -251,7 +253,7 @@ static char const short_options[] =
 #ifdef HAVE_SYSLOG_H
     "S"
 #endif
-    "i:d:a:c:Dhp:Px:qr:R:s:t:T:o:u:O:V:k:l:";
+    "i:d:a:c:Dhp:Px:qr:R:s:t:T:o:u:O:V:K:k:l:";
 
 static struct option const options[] = {
     { "algo", 1, NULL, 'a' },
@@ -259,6 +261,7 @@ static struct option const options[] = {
     { "background", 0, NULL, 'B' },
 #endif
     { "benchmark", 0, NULL, 1005 },
+    { "kernelpath", 1, NULL, 'K'},
     { "scratchpad", 1, NULL, 'k'},
     { "scratchpad_local_cache", 1, NULL, 'l'},
     { "cert", 1, NULL, 1001 },
@@ -2079,15 +2082,18 @@ static void parse_arg(int key, char *arg) {
         opt_work_size = (1 << v);
         break;
     case 'a':
-		for (v = 0; v < ARRAY_SIZE(algo_names); v++) {
-			if (algo_names[v] && !strcmp(arg, algo_names[v])) {
-				opt_algo = v;
-				break;
-			}
-		}
-		if (v == ARRAY_SIZE(algo_names))
-			show_usage_and_exit(1);
-		break;
+        for (v = 0; v < ARRAY_SIZE(algo_names); v++) {
+            if (algo_names[v] && !strcmp(arg, algo_names[v])) {
+                opt_algo = v;
+                break;
+            }
+        }
+        if (v == ARRAY_SIZE(algo_names))
+            show_usage_and_exit(1);
+        break;
+    case 'K':
+        pkernel_path = arg;
+        break;
     case 'k':
         pscratchpad_url = arg;
         break;
