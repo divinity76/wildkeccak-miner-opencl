@@ -1,3 +1,5 @@
+/* vim: set ts=4 sw=4 sts=4 tw=0 cindent: */
+
 /*
 * Copyright 2010 Jeff Garzik
 * Copyright 2012-2014 pooler
@@ -167,7 +169,9 @@ uint64_t* pscratchpad_buff = NULL;
 volatile uint64_t  scratchpad_size = 0;
 
 static char scratchpad_file[PATH_MAX];
-static const char cachedir_suffix[] = "boolberry"; /* scratchpad cache saved as ~/.cache/boolberry/scratchpad.bin */
+
+/* scratchpad cache saved as ~/.cache/<algo name>/scratchpad.bin */
+static const char *cachedir_suffix = NULL;
 
 struct scratchpad_hi current_scratchpad_hi;
 static struct addendums_array_entry add_arr[WILD_KECCAK_ADDENDUMS_ARRAY_SIZE];
@@ -2395,8 +2399,16 @@ int main(int argc, char *argv[]) {
     pthread_mutex_init(&stratum.sock_lock, NULL );
     pthread_mutex_init(&stratum.work_lock, NULL );
 
-    /* parse command line */
-    parse_cmdline(argc, argv);
+	if (pkernel_path == NULL) {
+		// default kernel folder (current dir)
+		pkernel_path = get_current_dir_name();
+	}
+
+	/* parse command line */
+	parse_cmdline(argc, argv);
+
+	if (cachedir_suffix == NULL && opt_algo >= 0);
+			cachedir_suffix = algo_names[opt_algo];
 
 	jsonrpc_2 = true;
 	if(!pscratchpad_local_cache)
@@ -2406,23 +2418,22 @@ int main(int argc, char *argv[]) {
 #else 
 		const char* phome_var_name = "HOME";
 #endif
-		if (!getenv(phome_var_name)) 
-		{
+		if (!getenv(phome_var_name)) {
 			applog(LOG_ERR, "$%s not set", phome_var_name);
 			return 1;
 		}
-		if (!try_mkdir_chdir(getenv(phome_var_name)) )
+
+		if (!try_mkdir_chdir(getenv(phome_var_name)) ) {
 			return 1;
+		}
 
 #if !defined(_WIN64) && !defined(_WIN32)
-		if (!try_mkdir_chdir(".cache") )
-		{
+		if (!try_mkdir_chdir(".cache")) {
 			return 1;
 		}
 #endif
 
-		if(!try_mkdir_chdir(cachedir_suffix))
-		{
+		if (!try_mkdir_chdir(cachedir_suffix)) {
 			return 1;
 		}
 
