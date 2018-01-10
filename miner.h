@@ -52,7 +52,7 @@ enum {
 
 #undef unlikely
 #undef likely
-#if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
+#if ((defined(__GNUC__) && (__GNUC__ > 2)) || defined(__INTEL_COMPILER) || defined(__clang__)) && defined(__OPTIMIZE__)
 #define unlikely(expr) (__builtin_expect(!!(expr), 0))
 #define likely(expr) (__builtin_expect(!!(expr), 1))
 #else
